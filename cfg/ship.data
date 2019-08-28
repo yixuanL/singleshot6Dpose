@@ -1,0 +1,7 @@
+train  = ship_dataset/train.txt
+valid  = ship_dataset/test.txt
+backup = backup/ship
+mesh = ship_dataset/ship.ply
+tr_range = ship_dataset/training_range.txt
+name = ship
+diam = 1.082

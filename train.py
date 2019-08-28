@@ -70,28 +70,32 @@ def train(epoch):
     avg_time = torch.zeros(9)
     niter = 0
     # Iterate through batches
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (dataIn, target) in enumerate(train_loader):	
         t2 = time.time()
         # adjust learning rate
         adjust_learning_rate(optimizer, processed_batches)
         processed_batches = processed_batches + 1
         # Pass the data to GPU
-        if use_cuda:
-            data = data.cuda()
+        # data = dataIn.cuda()
         t3 = time.time()
         # Wrap tensors in Variable class for automatic differentiation
-        data, target = Variable(data), Variable(target)
+        if use_cuda:
+            data, target = Variable(dataIn.cuda()), Variable(target)
         t4 = time.time()
         # Zero the gradients before running the backward pass
         optimizer.zero_grad()
         t5 = time.time()
-        # Forward pass
+        # Forward pass	
+        torch.cuda.empty_cache()
         output = model(data)
         t6 = time.time()
         model.seen = model.seen + data.data.size(0)
         region_loss.seen = region_loss.seen + data.data.size(0)
         # Compute loss, grow an array of losses for saving later on
         loss = region_loss(output, target)
+        #print(output.shape)
+        #print("target:")
+        #print(target.shape)
         training_iters.append(epoch * math.ceil(len(train_loader.dataset) / float(batch_size) ) + niter)
         training_losses.append(convert2cpu(loss.data))
         niter += 1
@@ -288,7 +292,7 @@ if __name__ == "__main__":
     data_options  = read_data_cfg(datacfg)
     net_options   = parse_cfg(cfgfile)[0]
     trainlist     = data_options['train']
-    testlist      = data_options['valid']
+    testlist      = data_options['test']
     nsamples      = file_lines(trainlist)
     gpus          = data_options['gpus']  # e.g. 0,1,2,3
     gpus 		  = '0'
@@ -300,6 +304,7 @@ if __name__ == "__main__":
     if not os.path.exists(backupdir):
         makedirs(backupdir)
     batch_size    = int(net_options['batch'])
+	
     max_batches   = int(net_options['max_batches'])
     learning_rate = float(net_options['learning_rate'])
     momentum      = float(net_options['momentum'])
@@ -309,7 +314,7 @@ if __name__ == "__main__":
     bg_file_names = get_all_files('VOCdevkit/VOC2012/JPEGImages')
 
     # Train parameters
-    max_epochs    = 700 # max_batches*batch_size/nsamples+1
+    max_epochs    = 500 # max_batches*batch_size/nsamples+1
     use_cuda      = True
     seed          = int(time.time())
     eps           = 1e-5
@@ -388,7 +393,7 @@ if __name__ == "__main__":
         else:
             params += [{'params': [value], 'weight_decay': decay*batch_size}]
     optimizer = optim.SGD(model.parameters(), lr=learning_rate/batch_size, momentum=momentum, dampening=0, weight_decay=decay*batch_size)
-    # optimizer = optim.Adam(model.parameters(), lr=0.001) # Adam optimization
+    #optimizer = optim.Adam(model.parameters(), lr=learning_rate/batch_size) # Adam optimization
 
     evaluate = False
     if evaluate:
@@ -397,10 +402,12 @@ if __name__ == "__main__":
     else:
         for epoch in range(init_epoch, max_epochs): 
             # TRAIN
-            niter = train(epoch)
+            niter = train(epoch)	
+            torch.cuda.empty_cache()
             # TEST and SAVE
-            if (epoch % 10 == 0) and (epoch is not 0): 
-                test(epoch, niter)
+            if (epoch % 5 == 0) and (epoch is not 0): 
+                test(epoch, niter)	
+                torch.cuda.empty_cache()
                 logging('save training stats to %s/costs.npz' % (backupdir))
                 np.savez(os.path.join(backupdir, "costs.npz"),
                     training_iters=training_iters,

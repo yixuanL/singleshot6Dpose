@@ -57,6 +57,13 @@ artifacts/
 # StyleCop
 StyleCopReport.xml
 
+LINEMOD/*
+ship_dataset/JPEGImages/*
+ship_dataset/mask/*
+ship_dataset/labels/*
+VOCdevkit/*
+cfg/darknet19_448.conv.23
+
 # Files built by Visual Studio
 *_i.c
 *_p.c

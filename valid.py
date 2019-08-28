@@ -43,7 +43,7 @@ def valid(datacfg, cfgfile, weightfile, outfile):
     if use_cuda:
         os.environ['CUDA_VISIBLE_DEVICES'] = gpus
         torch.cuda.manual_seed(seed)
-    save            = False
+    save            = True
     testtime        = True
     use_cuda        = True
     num_classes     = 1
@@ -158,7 +158,7 @@ def valid(datacfg, cfgfile, weightfile, outfile):
                         match         = corner_confidence9(box_gt[:18], torch.FloatTensor(boxes[j][:18]))
                         box_pr        = boxes[j]
                         best_conf_est = boxes[j][18]
-
+                        
                 # Denormalize the corner predictions 
                 corners2D_gt = np.array(np.reshape(box_gt[:18], [9, 2]), dtype='float32')
                 corners2D_pr = np.array(np.reshape(box_pr[:18], [9, 2]), dtype='float32')
@@ -184,12 +184,12 @@ def valid(datacfg, cfgfile, weightfile, outfile):
                     preds_rot.append(R_pr)
                     gts_rot.append(R_gt)
 
-                    np.savetxt(backupdir + '/test/gt/R_' + valid_files[count][-8:-3] + 'txt', np.array(R_gt, dtype='float32'))
-                    np.savetxt(backupdir + '/test/gt/t_' + valid_files[count][-8:-3] + 'txt', np.array(t_gt, dtype='float32'))
-                    np.savetxt(backupdir + '/test/pr/R_' + valid_files[count][-8:-3] + 'txt', np.array(R_pr, dtype='float32'))
-                    np.savetxt(backupdir + '/test/pr/t_' + valid_files[count][-8:-3] + 'txt', np.array(t_pr, dtype='float32'))
-                    np.savetxt(backupdir + '/test/gt/corners_' + valid_files[count][-8:-3] + 'txt', np.array(corners2D_gt, dtype='float32'))
-                    np.savetxt(backupdir + '/test/pr/corners_' + valid_files[count][-8:-3] + 'txt', np.array(corners2D_pr, dtype='float32'))
+                    np.savetxt(backupdir + '/test/gt/R_' + valid_files[count][-10:-3] + 'txt', np.array(R_gt, dtype='float32'))
+                    np.savetxt(backupdir + '/test/gt/t_' + valid_files[count][-10:-3] + 'txt', np.array(t_gt, dtype='float32'))
+                    np.savetxt(backupdir + '/test/pr/R_' + valid_files[count][-10:-3] + 'txt', np.array(R_pr, dtype='float32'))
+                    np.savetxt(backupdir + '/test/pr/t_' + valid_files[count][-10:-3] + 'txt', np.array(t_pr, dtype='float32'))
+                    np.savetxt(backupdir + '/test/gt/corners_' + valid_files[count][-10:-3] + 'txt', np.array(corners2D_gt, dtype='float32'))
+                    np.savetxt(backupdir + '/test/pr/corners_' + valid_files[count][-10:-3] + 'txt', np.array(corners2D_pr, dtype='float32'))
                 
                 # Compute translation error
                 trans_dist   = np.sqrt(np.sum(np.square(t_gt - t_pr)))

@@ -121,6 +121,7 @@ def fill_truth_detection(labpath, w, h, flip, dx, dy, sx, sy):
             x8 = min(0.999, max(0, x8 * sx - dx))
             y8 = min(0.999, max(0, y8 * sy - dy))
             
+            bs[i][0] = 0
             bs[i][1] = x0
             bs[i][2] = y0
             bs[i][3] = x1
@@ -168,8 +169,8 @@ def change_background(img, mask, bg):
     return out
 
 def load_data_detection(imgpath, shape, jitter, hue, saturation, exposure, bgpath):
-    labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-    maskpath = imgpath.replace('JPEGImages', 'mask').replace('/00', '/').replace('.jpg', '.png')
+    maskpath = imgpath.replace('JPEGImages', 'mask')
+    labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt')
 
     ## data augmentation
     img = Image.open(imgpath).convert('RGB')
